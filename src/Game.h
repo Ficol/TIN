@@ -7,6 +7,7 @@ public:
     Game(int sum_);
     void changeState(int number);
     int getState();
+    void reset();
 
 private:
     int sum;

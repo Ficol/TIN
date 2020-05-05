@@ -22,7 +22,7 @@ Server::~Server()
 {
     close(listen_socket);
     close(udp_socket);
-    for(auto&& client: clients)
+    for (auto &&client : clients)
         close(client->socket);
 }
 
@@ -71,7 +71,7 @@ void Server::run()
             if (processed.rfind("X", 0) == 0) //if initialization
             {
                 client_mutex.lock();
-                for (auto&& client : clients)
+                for (auto &&client : clients)
                     if ("X" + client->unique_id == processed)
                     {
                         char confirm[] = "start";
@@ -135,10 +135,15 @@ void Server::sendGameState(int udp_socket) //udp send
     {
         game_mutex.lock();
         //TODO calculate game state
-        strcpy(message, (boost::lexical_cast<std::string>(game.getState())).c_str());
+        int state = game.getState();
+        if (game.getState() > 1000)
+            game.reset();
         game_mutex.unlock();
+        if (state > 1000)
+            sendCommunicate((char*)"stop");
+        strcpy(message, (boost::lexical_cast<std::string>(state)).c_str());
         client_mutex.lock();
-        for (auto&& client : clients)
+        for (auto &&client : clients)
         {
             if (client->initialized == false)
                 continue;
@@ -156,4 +161,10 @@ void Server::closeConnection(int socket)
                       clients.begin(), clients.end(),
                       [&](const std::unique_ptr<Client> &x) { return x->socket == socket; }),
                   clients.end());
+}
+
+void Server::sendCommunicate(char *message)
+{
+    for (auto &&client : clients)
+        send(client->socket, message, strlen(message), 0);
 }

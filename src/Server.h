@@ -41,6 +41,7 @@ private:
     void handleConnection(int client_socket);
     void sendGameState(int udp_socket);
     void closeConnection(int socket);
+    void sendCommunicate(char *message);
 };
 
 #endif // SERVER_H

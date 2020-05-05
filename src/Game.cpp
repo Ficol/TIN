@@ -11,3 +11,7 @@ int Game::getState()
 {
     return sum;
 }
+void Game::reset()
+{
+    sum = 0;
+}
