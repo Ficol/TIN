@@ -1,21 +1,19 @@
 #include "Client.h"
 
-Client::Client(int socket_) : socket(socket_), initialized(false), unique_id(generateId())
+Client::Client(int socket_) : socket(socket_), initialized(false), unique_id(generateRandomString())
 {
 }
 
-void Client::setAddress(sockaddr_storage address_)
+std::string Client::generateRandomString(std::size_t length) const
 {
-    address = address_;
-}
-
-std::string Client::generateId(std::size_t length)
-{
-    static const std::string alphabet = "0123456789";
+    static const std::string alphabet = "0123456789"
+                                        "!@#$%^&*"
+                                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                        "abcdefghijklmnopqrstuvwxyz";
     static std::default_random_engine rng(std::time(nullptr));
     static std::uniform_int_distribution<std::size_t> distribution(0, alphabet.size() - 1);
 
-    std::string str("X");
+    std::string str;
     while (str.size() < length)
         str += alphabet[distribution(rng)];
     return str;

@@ -35,7 +35,8 @@ private:
     int listen_socket;
     int udp_socket;
     std::vector<std::unique_ptr<Client>> clients;
-    std::mutex mutex;
+    std::mutex client_mutex;
+    std::mutex game_mutex;
 
     void handleConnection(int client_socket);
     void sendGameState(int udp_socket);

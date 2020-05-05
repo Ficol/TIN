@@ -16,10 +16,9 @@ public:
     const std::string unique_id;
 
     Client(int socket_);
-    void setAddress(sockaddr_storage address_);
 
 private:
-    std::string generateId(std::size_t length = 3);
+    std::string generateRandomString(std::size_t length = 5) const;
 };
 
 #endif // CLIENT_H
