@@ -4,17 +4,9 @@
 class Game
 {
 public:
-    Game(int sum_) : sum(sum_)
-    {
-    }
-    void changeState(int number)
-    {
-        sum += number;
-    }
-    int getState()
-    {
-        return sum;
-    }
+    Game(int sum_);
+    void changeState(int number);
+    int getState();
 
 private:
     int sum;

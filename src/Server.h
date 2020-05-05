@@ -2,6 +2,7 @@
 #define SERVER_H
 
 #include "Game.h"
+#include "Client.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -12,7 +13,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
-#include <tuple>
+#include <memory>
 
 #include <unistd.h>
 #include <netdb.h>
@@ -23,16 +24,18 @@
 class Server
 {
 public:
-    using Client = std::tuple<int, sockaddr_storage, bool>;
     Server(size_t port_number);
+    ~Server();
     void run();
 
 private:
+    static const int MAX_PACKET_SIZE = 512;
     static const int MAX_CLIENT_AMOUNT = 8;
     Game game;
     int listen_socket;
     int udp_socket;
-    std::vector<Client> clients;
+    std::vector<std::unique_ptr<Client>> clients;
+    std::mutex mutex;
 
     void handleConnection(int client_socket);
     void sendGameState(int udp_socket);

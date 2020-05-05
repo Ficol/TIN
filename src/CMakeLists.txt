@@ -1,7 +1,8 @@
 set(SOURCE_FILES
         server_main.cpp
         Server.cpp
-        Game.h
+        Game.cpp
+        Client.cpp
         )
 add_library(${CMAKE_PROJECT_NAME}_lib
         ${SOURCE_FILES}
