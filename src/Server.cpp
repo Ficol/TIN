@@ -116,9 +116,7 @@ void Server::handleConnection(int client_socket) //tcp connection
         {
             char message[MAX_PACKET_SIZE] = {0};
             int nbytes = recv(client_socket, message, sizeof(message), 0);
-            if (nbytes < 0)
-                throw std::runtime_error("Recv call error");
-            if (nbytes == 0)
+            if (nbytes <= 0)
                 break;
         }
         else
