@@ -10,10 +10,10 @@
 class Client
 {
 public:
-    const int socket;
+    int socket;
     sockaddr_storage address;
     bool initialized;
-    const std::string unique_id;
+    std::string unique_id;
 
     Client(int socket_);
 

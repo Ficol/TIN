@@ -1,6 +1,8 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include "common.h"
+
 #include "Game.h"
 #include "Client.h"
 
@@ -13,7 +15,6 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
-#include <memory>
 
 #include <unistd.h>
 #include <netdb.h>
@@ -29,19 +30,17 @@ public:
     void run();
 
 private:
-    static const int MAX_PACKET_SIZE = 512;
-    static const int MAX_CLIENT_AMOUNT = 8;
     Game game;
     int listen_socket;
     int udp_socket;
-    std::vector<std::unique_ptr<Client>> clients;
+    std::vector<Client> clients;
     std::mutex client_mutex;
     std::mutex game_mutex;
 
-    void handleConnection(int client_socket);
-    void sendGameState(int udp_socket);
-    void closeConnection(int socket);
-    void sendCommunicate(char *message);
+    void handleConnection(const int client_socket);
+    void sendGameState(const int udp_socket);
+    void sendTcpMessage(const char *message) const;
+    void closeConnection(const int socket);
 };
 
 #endif // SERVER_H

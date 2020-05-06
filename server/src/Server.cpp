@@ -22,15 +22,15 @@ Server::~Server()
 {
     close(listen_socket);
     close(udp_socket);
-    for (auto &&client : clients)
-        close(client->socket);
+    for (auto client : clients)
+        close(client.socket);
 }
 
 void Server::run()
 {
     struct sockaddr_storage address;
 
-    if (listen(listen_socket, MAX_CLIENT_AMOUNT) != 0)
+    if (listen(listen_socket, MAX_CLIENTS_AMOUNT) != 0)
         throw std::runtime_error("Listen call error");
 
     std::thread udp_send(&Server::sendGameState, this, udp_socket);
@@ -46,12 +46,12 @@ void Server::run()
         int select_status = select(std::max(listen_socket, udp_socket) + 1, &ready, NULL, NULL, NULL);
         if (select_status < 0)
             throw std::runtime_error("Select call error");
-        if (FD_ISSET(listen_socket, &ready)) //new connection
+        if (FD_ISSET(listen_socket, &ready))
         {
             int new_socket = accept(listen_socket, (struct sockaddr *)&address, &address_size);
             if (new_socket < 0)
                 throw std::runtime_error("Accept call error");
-            if (clients.size() >= MAX_CLIENT_AMOUNT)
+            if (clients.size() >= MAX_CLIENTS_AMOUNT)
                 close(new_socket);
             else
             {
@@ -59,7 +59,7 @@ void Server::run()
                 new_tcp.detach();
             }
         }
-        if (FD_ISSET(udp_socket, &ready)) //udp receive
+        if (FD_ISSET(udp_socket, &ready))
         {
             char message[MAX_PACKET_SIZE] = {0};
             int nbytes = recvfrom(udp_socket, message, sizeof(message), 0, (struct sockaddr *)&address, &address_size);
@@ -68,16 +68,15 @@ void Server::run()
             if (nbytes == 0)
                 continue;
             std::string processed(message);
-            if (processed.rfind("X", 0) == 0) //if initialization
+            if (processed.rfind("X", 0) == 0)
             {
                 client_mutex.lock();
-                for (auto &&client : clients)
-                    if ("X" + client->unique_id == processed)
+                for (auto &client : clients)
+                    if ("X" + client.unique_id == processed)
                     {
-                        char confirm[] = "start";
-                        client->address = address;
-                        client->initialized = true;
-                        send(client->socket, confirm, strlen(confirm), 0);
+                        client.address = address;
+                        client.initialized = true;
+                        send(client.socket, confirm, strlen(confirm), 0);
                         break;
                     }
                 client_mutex.unlock();
@@ -93,25 +92,25 @@ void Server::run()
     }
 }
 
-void Server::handleConnection(int client_socket) //tcp connection
+void Server::handleConnection(int client_socket)
 {
     //TODO entry configuration packet
-    std::unique_ptr<Client> client = std::make_unique<Client>(Client(client_socket));
-    const char *id = ("X" + client->unique_id).c_str();
+    Client client(client_socket);
+    const char *id = ("X" + client.unique_id).c_str();
     send(client_socket, id, strlen(id), 0);
     client_mutex.lock();
-    clients.push_back(std::move(client));
     std::cout << "Socket " << client_socket << " connected" << std::endl;
+    clients.push_back(client);
     client_mutex.unlock();
     while (true)
     {
-        struct timeval timeout = {10, 0};
+        struct timeval timeout = {MAX_DISCONNECTED_SECONDS, 0};
         fd_set ready;
         FD_ZERO(&ready);
         FD_SET(client_socket, &ready);
         int select_status = select(client_socket + 1, &ready, NULL, NULL, &timeout);
         if (select_status < 0)
-            throw std::runtime_error("Select call error");
+            std::cout << "Select call error" << std::endl;
         if (select_status > 0 && FD_ISSET(client_socket, &ready))
         {
             char message[MAX_PACKET_SIZE] = {0};
@@ -128,7 +127,7 @@ void Server::handleConnection(int client_socket) //tcp connection
     client_mutex.unlock();
 }
 
-void Server::sendGameState(int udp_socket) //udp send
+void Server::sendGameState(int udp_socket)
 {
     char message[MAX_PACKET_SIZE];
     while (true)
@@ -136,35 +135,35 @@ void Server::sendGameState(int udp_socket) //udp send
         game_mutex.lock();
         //TODO calculate game state
         int state = game.getState();
-        if (game.getState() > 1000)
+        if (state > 1000)
             game.reset();
         game_mutex.unlock();
         if (state > 1000)
-            sendCommunicate((char*)"stop");
+            sendTcpMessage(game_end);
         strcpy(message, (boost::lexical_cast<std::string>(state)).c_str());
         client_mutex.lock();
-        for (auto &&client : clients)
+        for (auto &client : clients)
         {
-            if (client->initialized == false)
+            if (client.initialized == false)
                 continue;
-            sendto(udp_socket, message, strlen(message), 0, (struct sockaddr *)&client->address, sizeof(client->address));
+            sendto(udp_socket, message, strlen(message), 0, (struct sockaddr *)&client.address, sizeof(client.address));
         }
         client_mutex.unlock();
         std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(100));
     }
 }
 
-void Server::closeConnection(int socket)
+void Server::sendTcpMessage(const char *message) const
+{
+    for (auto client : clients)
+        send(client.socket, message, strlen(message), 0);
+}
+
+void Server::closeConnection(const int socket)
 {
     close(socket);
     clients.erase(std::remove_if(
                       clients.begin(), clients.end(),
-                      [&](const std::unique_ptr<Client> &x) { return x->socket == socket; }),
+                      [&](const Client &x) { return x.socket == socket; }),
                   clients.end());
-}
-
-void Server::sendCommunicate(char *message)
-{
-    for (auto &&client : clients)
-        send(client->socket, message, strlen(message), 0);
 }
