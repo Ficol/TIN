@@ -55,15 +55,16 @@ void Player::update()
         position.second += std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.second - position.second);
         break;
     }
+    if (std::chrono::duration<double>(now - last_move_update).count() > 0.2)
+        direction = game::STOP;
     for (auto &bullet : bullets)
         bullet.update(time);
-    if(std::chrono::duration<double>(now - last_move_update).count() > 0.2)
-        direction = game::STOP;
 }
 
 std::vector<char> Player::getState() const
 {
     std::vector<char> state = {
+        id,
         static_cast<char>((position.first >> 8) & 0xff),
         static_cast<char>(position.first & 0xff),
         static_cast<char>((position.second >> 8) & 0xff),
