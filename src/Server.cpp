@@ -76,9 +76,8 @@ void Server::run()
                         std::vector<char> init_message{server::INIT};
                         std::vector<char> settings = game.getSettings();
                         std::vector<char> points = game.getPoints();
-                        init_message.reserve(init_message.size() + settings.size() + points.size());
                         init_message.insert(init_message.end(), settings.begin(), settings.end());
-                        init_message.insert(init_message.end(), points.begin(), points.end());
+                        //init_message.insert(init_message.end(), points.begin(), points.end());
                         send(client.getSocket(), &init_message[0], init_message.size(), 0);
                         break;
                     }

@@ -7,8 +7,11 @@ Game::Game(game::settings settings_) : settings(settings_)
 
 std::vector<char> Game::getSettings() const
 {
-    std::vector<char> settings_message;
-    //TODO
+    std::vector<char> settings_message{
+        static_cast<char>((settings.board_width >> 8) & 0xff),
+        static_cast<char>(settings.board_width & 0xff),
+        static_cast<char>((settings.board_height >> 8) & 0xff),
+        static_cast<char>(settings.board_height & 0xff)};
     return settings_message;
 }
 
@@ -65,12 +68,12 @@ std::vector<char> Game::getState() const
         std::vector<char> player_state = player.getState();
         state.insert(state.end(), player_state.begin(), player_state.end());
     }
-    state.push_back(server::BULLET_POS);
+    /*state.push_back(server::BULLET_POS);
     for (auto &player : players)
     {
         std::vector<char> bullets_state = player.getBulletsState();
         state.insert(state.end(), bullets_state.begin(), bullets_state.end());
-    }
+    }*/
     return state;
 }
 

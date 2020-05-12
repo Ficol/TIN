@@ -23,13 +23,13 @@ namespace game
 {
     struct settings
     {
-        const size_t board_width = 1000;
-        const size_t board_height = 1000;
-        const size_t bullet_velocity = 300;
-        const size_t player_velocity = 100;
+        const size_t board_width = 60000;
+        const size_t board_height = 60000;
+        const size_t bullet_velocity = 20000;
+        const size_t player_velocity = 10000;
         const char win_score = 12;
-        const size_t player_size = 50;
-        const size_t bullet_size = 10;
+        const size_t player_size = 5000;
+        const size_t bullet_size = 1000;
     } static const GAME_SETTINGS;
     enum move
     {
