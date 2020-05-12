@@ -31,28 +31,28 @@ void Player::update()
         break;
     case game::UPRIGHT:
         position.first += std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.first - position.first);
-        position.second += std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.second - position.second);
+        position.second -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), position.second);
         break;
     case game::RIGHT:
         position.first += std::min(static_cast<size_t>(velocity * time), board_size.first - position.first);
         break;
     case game::DOWNRIGHT:
         position.first += std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.first - position.first);
-        position.second -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.second - position.second);
+        position.second += std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.second - position.second);
         break;
     case game::DOWN:
         position.second += std::min(static_cast<size_t>(velocity * time), board_size.second - position.second);
         break;
     case game::DOWNLEFT:
-        position.first -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.first - position.first);
-        position.second -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.second - position.second);
+        position.first -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), position.first);
+        position.second += std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.second - position.second);
         break;
     case game::LEFT:
         position.first -= std::min(static_cast<size_t>(velocity * time), position.first);
         break;
     case game::UPLEFT:
-        position.first -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.first - position.first);
-        position.second += std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.second - position.second);
+        position.first -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), position.first);
+        position.second -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), position.second);
         break;
     }
     if (std::chrono::duration<double>(now - last_move_update).count() > 0.2)
