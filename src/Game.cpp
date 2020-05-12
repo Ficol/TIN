@@ -49,7 +49,7 @@ char Game::update()
     return scorer;
 }
 
-void Game::changeState(char id, const std::string commands)
+void Game::changeState(char id, const std::vector<char> &commands)
 {
     for (auto &player : players)
         if (player.getId() == id)

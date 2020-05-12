@@ -57,6 +57,8 @@ void Player::update()
     }
     for (auto &bullet : bullets)
         bullet.update(time);
+    if(std::chrono::duration<double>(now - last_move_update).count() > 0.2)
+        direction = game::STOP;
 }
 
 std::vector<char> Player::getState() const
@@ -92,6 +94,7 @@ char Player::getId() const
 
 void Player::move(game::move direction_)
 {
+    last_move_update = std::chrono::steady_clock::now();
     direction = direction_;
 }
 

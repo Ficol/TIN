@@ -60,11 +60,11 @@ void Server::run()
         }
         if (FD_ISSET(udp_socket, &ready))
         {
-            char receive_message[server::MAX_PACKET_SIZE] = {0};
-            int nbytes = recvfrom(udp_socket, receive_message, sizeof(receive_message), 0, reinterpret_cast<sockaddr *>(&address), &address_size);
+            std::vector<char> receive_message(server::MAX_PACKET_SIZE);
+            int nbytes = recvfrom(udp_socket, receive_message.data(), receive_message.size(), 0, reinterpret_cast<sockaddr *>(&address), &address_size);
             if (nbytes < 0)
                 throw std::runtime_error("Recvfrom call error");
-            if (nbytes == 0)
+            if (nbytes < 2)
                 continue;
             if (receive_message[0] == server::ID)
             {
@@ -89,11 +89,8 @@ void Server::run()
                     {
                         char scorer = game.update();
                         if (scorer)
-                        {
-                            const std::vector<char> points_message{server::TCP_GAME, scorer};
-                            sendTcpMessage(points_message);
-                        }
-                        game.changeState(client.getId(), std::string(receive_message));
+                            sendTcpMessage(std::vector<char>{server::TCP_GAME, scorer});
+                        game.changeState(client.getId(), receive_message);
                         break;
                     }
             }
@@ -107,7 +104,7 @@ void Server::handleConnection(int client_socket)
     Client client(client_socket);
     client.setId();
     const std::vector<char> id_message{server::ID, client.getId()};
-    send(client_socket, &id_message[0], id_message.size(), 0);
+    send(client_socket, id_message.data(), id_message.size(), 0);
     std::cout << "Player " << static_cast<int>(client.getId()) << " connected" << std::endl;
     clients.push_back(client);
     while (true)
@@ -153,7 +150,7 @@ void Server::sendGameState(int udp_socket)
             if (client.isInitialized())
             {
                 sockaddr_in address = client.getAddr();
-                sendto(udp_socket, &state_message[0], state_message.size(), 0, reinterpret_cast<sockaddr *>(&address), sizeof(address));
+                sendto(udp_socket, state_message.data(), state_message.size(), 0, reinterpret_cast<sockaddr *>(&address), sizeof(address));
             }
         std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(server::STATE_PERIOD));
     }
@@ -163,7 +160,7 @@ void Server::sendTcpMessage(const std::vector<char> &message)
 {
     for (auto &client : clients)
         if (client.isInitialized())
-            send(client.getSocket(), &message[0], message.size(), 0);
+            send(client.getSocket(), message.data(), message.size(), 0);
 }
 
 void Server::closeConnection(const int socket)

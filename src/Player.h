@@ -36,6 +36,7 @@ private:
     size_t bullets_velocity;
     std::vector<Bullet> bullets;
     std::chrono::time_point<std::chrono::steady_clock> last_update;
+    std::chrono::time_point<std::chrono::steady_clock> last_move_update;
 };
 
 #endif // PLAYER_H

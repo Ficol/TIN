@@ -21,7 +21,7 @@ public:
     std::vector<char> getSettings() const;
     std::vector<char> getPoints() const;
     char update();
-    void changeState(char id,  const std::string commands);
+    void changeState(char id, const std::vector<char> &commands);
     std::vector<char> getState() const;
     void addPlayer(const char id);
     void removePlayer(const char id);
