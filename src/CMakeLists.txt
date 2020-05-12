@@ -3,6 +3,8 @@ set(SOURCE_FILES
         Server.cpp
         Game.cpp
         Client.cpp
+	Player.cpp
+	Bullet.cpp
 	common.h
         )
 add_library(${CMAKE_PROJECT_NAME}_lib
