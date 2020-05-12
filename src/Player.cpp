@@ -27,7 +27,7 @@ void Player::update()
     case game::STOP:
         break;
     case game::UP:
-        position.second += std::min(static_cast<size_t>(velocity * time), board_size.second - position.second);
+        position.second -= std::min(static_cast<size_t>(velocity * time), position.second);
         break;
     case game::UPRIGHT:
         position.first += std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.first - position.first);
@@ -41,14 +41,14 @@ void Player::update()
         position.second -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.second - position.second);
         break;
     case game::DOWN:
-        position.second -= std::min(static_cast<size_t>(velocity * time), board_size.second - position.second);
+        position.second += std::min(static_cast<size_t>(velocity * time), board_size.second - position.second);
         break;
     case game::DOWNLEFT:
         position.first -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.first - position.first);
         position.second -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.second - position.second);
         break;
     case game::LEFT:
-        position.first -= std::min(static_cast<size_t>(velocity * time), board_size.first - position.first);
+        position.first -= std::min(static_cast<size_t>(velocity * time), position.first);
         break;
     case game::UPLEFT:
         position.first -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), board_size.first - position.first);
