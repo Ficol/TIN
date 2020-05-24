@@ -87,9 +87,10 @@ void Server::run()
                 for (auto &client : clients)
                     if (client.compareAddress(address))
                     {
-                        char scorer = game.update();
-                        if (scorer)
-                            sendTcpMessage(std::vector<char>{server::TCP_GAME, scorer});
+                        std::vector<char> scorers;
+                        game.update(scorers);
+                        if(!scorers.empty())
+                            sendTcpMessage(scorers);
                         game.changeState(client.getId(), receive_message);
                         break;
                     }
@@ -134,9 +135,10 @@ void Server::sendGameState(int udp_socket)
     size_t packet_number = 0;
     while (true)
     {
-        char scorer = game.update();
-        if (scorer)
-            sendTcpMessage(std::vector<char>{server::TCP_GAME, scorer});
+        std::vector<char> scorers;
+        game.update(scorers);
+        if(!scorers.empty())
+            sendTcpMessage(scorers);
         if (packet_number++ == 65535)
             packet_number = 0;
         std::vector<char> state_message{server::STATE};

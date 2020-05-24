@@ -1,9 +1,8 @@
 #include "Player.h"
 
-Player::Player(char id_, Position position_, game::settings settings) : id(id_), position(position_), points(0),
-                                                                        board_size(Position(settings.board_width, settings.board_height)),
-                                                                        velocity(settings.bullet_velocity), bullets_velocity(settings.bullet_velocity),
-                                                                        last_update(std::chrono::steady_clock::now())
+Player::Player(char id_, game::Position position_, game::settings settings) : board_size(game::Position(settings.board_width, settings.board_height)),
+                                                                        velocity(settings.bullet_velocity),  id(id_), position(position_),
+                                                                        points(0)
 {
 }
 
@@ -12,16 +11,14 @@ void Player::resetPoints()
     points = 0;
 }
 
-void Player::respawn(Position position_)
+void Player::respawn(game::Position position_)
 {
     position = position_;
 }
 
-void Player::update()
+void Player::update(double time)
 {
     auto now = std::chrono::steady_clock::now();
-    double time = std::chrono::duration<double>(now - last_update).count();
-    last_update = now;
     switch (direction)
     {
     case game::STOP:
@@ -55,10 +52,8 @@ void Player::update()
         position.second -= std::min(static_cast<size_t>(velocity * time / sqrt(2)), position.second);
         break;
     }
-    if (std::chrono::duration<double>(now - last_move_update).count() > 0.2)
+    if (std::chrono::duration<double>(now - last_move_update).count() > MOVE_TIME)
         direction = game::STOP;
-    for (auto &bullet : bullets)
-        bullet.update(time);
 }
 
 std::vector<char> Player::getState() const
@@ -72,15 +67,9 @@ std::vector<char> Player::getState() const
     return state;
 }
 
-std::vector<char> Player::getBulletsState() const
+game::Position Player::getPosition() const
 {
-    std::vector<char> bullets_state;
-    for (auto &bullet : bullets)
-    {
-        std::vector<char> bullet_state = bullet.getState();
-        bullets_state.insert(bullets_state.end(), bullet_state.begin(), bullet_state.end());
-    }
-    return bullets_state;
+    return position;
 }
 
 size_t Player::getPoints() const
@@ -99,7 +88,7 @@ void Player::move(game::move direction_)
     direction = direction_;
 }
 
-void Player::shoot(size_t direction_)
+void Player::score()
 {
-    bullets.push_back(Bullet(board_size, position, direction_, bullets_velocity));
+    ++points;
 }

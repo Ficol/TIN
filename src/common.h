@@ -2,7 +2,7 @@
 #define COMMON_H
 
 #include <cstddef>
-#include <vector>
+#include <utility>
 
 namespace server
 {
@@ -21,6 +21,7 @@ namespace server
 
 namespace game
 {
+    using Position = std::pair<size_t, size_t>;
     struct settings
     {
         const size_t board_width = 60000;
