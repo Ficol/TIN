@@ -27,7 +27,7 @@ namespace game
         const size_t board_height = 60000;
         const size_t bullet_velocity = 20000;
         const size_t player_velocity = 10000;
-        const char win_score = 12;
+        const unsigned char win_score = 12;
         const size_t player_size = 5000;
         const size_t bullet_size = 1000;
     } static const GAME_SETTINGS;

@@ -8,10 +8,8 @@ Bullet::Bullet(Position board_size_, Position position_, size_t direction_, size
 void Bullet::update(double time)
 {
     const double pi = std::acos(-1);
-    position.first += std::min(static_cast<size_t>(velocity * time * std::cos(2 * pi * direction / POSSIBLE_DIRECTIONS_AMOUNT)),
-                               board_size.first - position.first);
-    position.second += std::min(static_cast<size_t>(velocity * time * std::cos(2 * pi * direction / POSSIBLE_DIRECTIONS_AMOUNT)),
-                                board_size.second - position.second);
+    position.first += static_cast<size_t>(velocity * time * std::cos(2 * pi * direction / POSSIBLE_DIRECTIONS_AMOUNT));
+    position.second += static_cast<size_t>(velocity * time * std::cos(2 * pi * direction / POSSIBLE_DIRECTIONS_AMOUNT));
 }
 
 std::vector<char> Bullet::getState() const

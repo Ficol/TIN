@@ -77,7 +77,7 @@ void Server::run()
                         std::vector<char> settings = game.getSettings();
                         std::vector<char> points = game.getPoints();
                         init_message.insert(init_message.end(), settings.begin(), settings.end());
-                        //init_message.insert(init_message.end(), points.begin(), points.end());
+                        init_message.insert(init_message.end(), points.begin(), points.end());
                         send(client.getSocket(), &init_message[0], init_message.size(), 0);
                         break;
                     }
@@ -105,7 +105,7 @@ void Server::handleConnection(int client_socket)
     client.setId();
     const std::vector<char> id_message{server::ID, client.getId()};
     send(client_socket, id_message.data(), id_message.size(), 0);
-    std::cout << "Player " << static_cast<int>(client.getId()) << " connected" << std::endl;
+    std::cout << "Player " << static_cast<int>(static_cast<unsigned char>(client.getId())) << " connected" << std::endl;
     clients.push_back(client);
     while (true)
     {
@@ -126,7 +126,7 @@ void Server::handleConnection(int client_socket)
     }
     game.removePlayer(client.getId());
     closeConnection(client_socket);
-    std::cout << "Player " << static_cast<int>(client.getId()) << " disconnected" << std::endl;
+    std::cout << "Player " << static_cast<int>(static_cast<unsigned char>(client.getId())) << " disconnected" << std::endl;
 }
 
 void Server::sendGameState(int udp_socket)
@@ -142,7 +142,7 @@ void Server::sendGameState(int udp_socket)
         std::vector<char> state_message{server::STATE};
         std::vector<char> packet_id = {
             static_cast<char>((packet_number >> 8) & 0xff),
-            static_cast<char>((packet_number)&0xff)};
+            static_cast<char>(packet_number & 0xff)};
         std::vector<char> state = game.getState();
         state_message.insert(state_message.end(), packet_id.begin(), packet_id.end());
         state_message.insert(state_message.end(), state.begin(), state.end());

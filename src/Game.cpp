@@ -11,7 +11,8 @@ std::vector<char> Game::getSettings() const
         static_cast<char>((settings.board_width >> 8) & 0xff),
         static_cast<char>(settings.board_width & 0xff),
         static_cast<char>((settings.board_height >> 8) & 0xff),
-        static_cast<char>(settings.board_height & 0xff)};
+        static_cast<char>(settings.board_height & 0xff),
+        static_cast<char>(settings.win_score)};
     return settings_message;
 }
 
@@ -51,12 +52,17 @@ char Game::update()
 
 void Game::changeState(char id, const std::vector<char> &commands)
 {
+    if (commands.size() < 2)
+        return;
     for (auto &player : players)
         if (player.getId() == id)
         {
             if (commands[0] == server::PLAYER_MOVE)
                 player.move(static_cast<game::move>(commands[1]));
-            //TODO player.shoot(direction)
+            if (commands[0] == server::SHOOT)
+                player.shoot(static_cast<size_t>(commands[1]));
+            else if (commands.size() >= 4 && commands[2] == server::SHOOT)
+                player.shoot(static_cast<size_t>(commands[3]));
         }
 }
 
@@ -68,12 +74,12 @@ std::vector<char> Game::getState() const
         std::vector<char> player_state = player.getState();
         state.insert(state.end(), player_state.begin(), player_state.end());
     }
-    /*state.push_back(server::BULLET_POS);
+    state.push_back(server::BULLET_POS);
     for (auto &player : players)
     {
         std::vector<char> bullets_state = player.getBulletsState();
         state.insert(state.end(), bullets_state.begin(), bullets_state.end());
-    }*/
+    }
     return state;
 }
 
@@ -93,6 +99,6 @@ void Game::removePlayer(char id)
 char Game::checkCollision()
 {
     //if bullet on border or hit - erase
-    //returns player id
+    //returns player id who got shot
     return 0;
 }
