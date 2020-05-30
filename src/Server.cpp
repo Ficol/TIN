@@ -1,6 +1,6 @@
 #include "Server.h"
 
-Server::Server(size_t port_number) : game(game::GAME_SETTINGS)
+Server::Server(const size_t port_number)
 {
     sockaddr_in server_address;
     server_address.sin_family = AF_INET;
@@ -68,32 +68,40 @@ void Server::run()
                 continue;
             if (receive_message[0] == server::ID)
             {
+                clients_mutex.lock();
                 for (auto &client : clients)
                     if (receive_message[1] == client.getId() && !client.isInitialized())
                     {
                         client.initialize(address);
+                        game_mutex.lock();
                         game.addPlayer(client.getId());
                         std::vector<char> init_message{server::INIT};
                         std::vector<char> settings = game.getSettings();
                         std::vector<char> points = game.getPoints();
+                        game_mutex.unlock();
                         init_message.insert(init_message.end(), settings.begin(), settings.end());
                         init_message.insert(init_message.end(), points.begin(), points.end());
                         send(client.getSocket(), &init_message[0], init_message.size(), 0);
                         break;
                     }
+                clients_mutex.unlock();
             }
             else if (receive_message[0] == server::PLAYER_MOVE || receive_message[0] == server::SHOOT)
             {
+                clients_mutex.lock();
                 for (auto &client : clients)
                     if (client.compareAddress(address))
                     {
                         std::vector<char> scorers;
+                        game_mutex.lock();
                         game.update(scorers);
+                        game.changeState(client.getId(), receive_message);
+                        game_mutex.unlock();
                         if(!scorers.empty())
                             sendTcpMessage(scorers);
-                        game.changeState(client.getId(), receive_message);
                         break;
                     }
+                clients_mutex.unlock();
             }
         }
     }
@@ -106,8 +114,10 @@ void Server::handleConnection(int client_socket)
     client.setId();
     const std::vector<char> id_message{server::ID, client.getId()};
     send(client_socket, id_message.data(), id_message.size(), 0);
-    std::cout << "Player " << static_cast<int>(static_cast<unsigned char>(client.getId())) << " connected" << std::endl;
+    std::cout << "Player " << static_cast<size_t>(static_cast<unsigned char>(client.getId())) << " connected" << std::endl;
+    clients_mutex.lock();
     clients.push_back(client);
+    clients_mutex.unlock();
     while (true)
     {
         timeval timeout = {server::MAX_DISCONNECTED_SECONDS, 0};
@@ -125,9 +135,13 @@ void Server::handleConnection(int client_socket)
         else
             break;
     }
+    game_mutex.lock();
     game.removePlayer(client.getId());
+    game_mutex.unlock();
+    clients_mutex.lock();
     closeConnection(client_socket);
-    std::cout << "Player " << static_cast<int>(static_cast<unsigned char>(client.getId())) << " disconnected" << std::endl;
+    clients_mutex.unlock();
+    std::cout << "Player " << static_cast<size_t>(static_cast<unsigned char>(client.getId())) << " disconnected" << std::endl;
 }
 
 void Server::sendGameState(int udp_socket)
@@ -136,25 +150,35 @@ void Server::sendGameState(int udp_socket)
     while (true)
     {
         std::vector<char> scorers;
+        game_mutex.lock();
         game.update(scorers);
+        game_mutex.unlock();
         if(!scorers.empty())
+        {
+            clients_mutex.lock();
             sendTcpMessage(scorers);
+            clients_mutex.unlock();
+        }
         if (packet_number++ == 65535)
             packet_number = 0;
         std::vector<char> state_message{server::STATE};
         std::vector<char> packet_id = {
             static_cast<char>((packet_number >> 8) & 0xff),
             static_cast<char>(packet_number & 0xff)};
+        game_mutex.lock();
         std::vector<char> state = game.getState();
+        game_mutex.unlock();
         state_message.insert(state_message.end(), packet_id.begin(), packet_id.end());
         state_message.insert(state_message.end(), state.begin(), state.end());
+        clients_mutex.lock();
         for (auto &client : clients)
             if (client.isInitialized())
             {
                 sockaddr_in address = client.getAddr();
                 sendto(udp_socket, state_message.data(), state_message.size(), 0, reinterpret_cast<sockaddr *>(&address), sizeof(address));
             }
-        std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(server::STATE_PERIOD));
+        clients_mutex.unlock();
+        std::this_thread::sleep_until(std::chrono::steady_clock::now() + std::chrono::milliseconds(server::STATE_PERIOD));
     }
 }
 
@@ -170,6 +194,6 @@ void Server::closeConnection(const int socket)
     close(socket);
     clients.erase(std::remove_if(
                       clients.begin(), clients.end(),
-                      [&](const Client &x) { return x.getSocket() == socket; }),
+                      [&](const Client &client) { return client.getSocket() == socket; }),
                   clients.end());
 }

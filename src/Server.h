@@ -7,7 +7,6 @@
 #include "Client.h"
 
 #include <vector>
-#include <string>
 #include <thread>
 #include <mutex>
 #include <chrono>
@@ -24,7 +23,7 @@
 class Server
 {
 public:
-    Server(size_t port_number);
+    Server(const size_t port_number);
     ~Server();
     void run();
 
@@ -33,6 +32,8 @@ private:
     int listen_socket;
     int udp_socket;
     std::vector<Client> clients;
+    std::mutex clients_mutex;
+    std::mutex game_mutex;
 
     void handleConnection(const int client_socket);
     void sendGameState(const int udp_socket);

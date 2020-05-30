@@ -24,13 +24,15 @@ namespace game
     using Position = std::pair<size_t, size_t>;
     struct settings
     {
-        const size_t board_width = 60000;
-        const size_t board_height = 60000;
-        const size_t bullet_velocity = 20000;
-        const size_t player_velocity = 10000;
-        const unsigned char win_score = 12;
-        const size_t player_size = 5000;
-        const size_t bullet_size = 1000;
+        size_t board_width = 60000;
+        size_t board_height = 60000;
+        size_t bullet_velocity = 40000;
+        size_t player_velocity = 20000;
+        unsigned char win_score = 12;
+        size_t player_size = 5000;
+        size_t bullet_size = 1000;
+        double move_time = 0.2;
+        double shoot_cooldown = 0.2;
     } static const GAME_SETTINGS;
     enum move
     {

@@ -6,21 +6,19 @@
 #include "Player.h"
 
 #include <vector>
-#include <string>
 #include <algorithm>
 #include <ctime>
 #include <cstdlib>
 #include <chrono>
-#include <mutex>
 
 class Game
 {
 public:
-    Game(const game::settings settings_);
+    Game();
     std::vector<char> getSettings() const;
     std::vector<char> getPoints() const;
     void update(std::vector<char> &scorers);
-    void changeState(char id, const std::vector<char> &commands);
+    void changeState(const char id, const std::vector<char> &commands);
     std::vector<char> getState() const;
     void addPlayer(const char id);
     void removePlayer(const char id);
@@ -28,13 +26,12 @@ public:
 private:
     std::vector<Player> players;
     std::vector<Bullet> bullets;
-    const game::settings settings;
     std::chrono::time_point<std::chrono::steady_clock> last_update;
 
-    void shoot(char id, game::Position position, size_t direction);
+    void shoot(Player &player, const size_t direction);
     void handleCollision(std::vector<char> &scorers);
     void reset();
-    bool isShot(game::Position player_position, game::Position bullet_position);
+    bool isShot(const game::Position player_position, const game::Position bullet_position) const;
 };
 
 #endif // GAME_H
