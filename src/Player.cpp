@@ -1,7 +1,7 @@
 #include "Player.h"
 
 Player::Player(const char id_, const game::Position position_) : id(id_), position(position_), points(0),
-                                                     last_move_update(std::chrono::steady_clock::now()), last_shoot(std::chrono::steady_clock::now())
+                                                     last_move_update(std::chrono::steady_clock::now()), last_shoot(std::chrono::steady_clock::now() - std::chrono::seconds{10})
 {
 }
 
@@ -101,6 +101,6 @@ void Player::shootUpdate()
 bool Player::isCooldown() const
 {
     if (std::chrono::duration<double>(std::chrono::steady_clock::now() - last_shoot).count() > game::GAME_SETTINGS.shoot_cooldown)
-        return true;
-    return false;
+        return false;
+    return true;
 }
