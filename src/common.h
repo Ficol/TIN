@@ -32,7 +32,7 @@ namespace game
         size_t player_size = 5000;
         size_t bullet_size = 1000;
         double move_time = 0.2;
-        double shoot_cooldown = 0.2;
+        double shoot_cooldown = 0.3;
     } static const GAME_SETTINGS;
     enum move
     {

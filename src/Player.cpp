@@ -59,6 +59,7 @@ std::vector<char> Player::getState() const
 {
     std::vector<char> state = {
         id,
+        points,
         static_cast<char>((position.first >> 8) & 0xff),
         static_cast<char>(position.first & 0xff),
         static_cast<char>((position.second >> 8) & 0xff),
@@ -71,7 +72,7 @@ game::Position Player::getPosition() const
     return position;
 }
 
-size_t Player::getPoints() const
+char Player::getPoints() const
 {
     return points;
 }

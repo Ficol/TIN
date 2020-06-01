@@ -8,25 +8,8 @@ Game::Game() : last_update(std::chrono::steady_clock::now())
 std::vector<char> Game::getSettings() const
 {
     std::vector<char> settings_message{
-        static_cast<char>((game::GAME_SETTINGS.board_width >> 8) & 0xff),
-        static_cast<char>(game::GAME_SETTINGS.board_width & 0xff),
-        static_cast<char>((game::GAME_SETTINGS.board_height >> 8) & 0xff),
-        static_cast<char>(game::GAME_SETTINGS.board_height & 0xff),
         static_cast<char>(game::GAME_SETTINGS.win_score)};
     return settings_message;
-}
-
-std::vector<char> Game::getPoints() const
-{
-    std::vector<char> points_message;
-    for (auto &player : players)
-    {
-        points_message.push_back(player.getId());
-        size_t points = player.getPoints();
-        points_message.push_back(static_cast<char>((points >> 8) & 0xff));
-        points_message.push_back(static_cast<char>(points & 0xff));
-    }
-    return points_message;
 }
 
 void Game::reset()
@@ -39,7 +22,7 @@ void Game::reset()
     }
 }
 
-void Game::update(std::vector<char> &scorers)
+char Game::update()
 {
     auto now = std::chrono::steady_clock::now();
     double time = std::chrono::duration<double>(now - last_update).count();
@@ -49,13 +32,17 @@ void Game::update(std::vector<char> &scorers)
     bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
                                  [&](Bullet &bullet) { return bullet.update(time); }),
                   bullets.end()); //update and erase if on border
-    handleCollision(scorers);
+    handleCollision();
+    for (auto &player : players)
+        if (player.getPoints() >= game::GAME_SETTINGS.win_score)
+            return player.getId();
+    return 0;
 }
 
 void Game::changeState(const char id, const std::vector<char> &commands)
 {
-    if (commands.size() < 2)
-        return;
+    //if (commands.size() != 8)
+    //   return;
     for (auto &player : players)
         if (player.getId() == id)
         {
@@ -63,8 +50,6 @@ void Game::changeState(const char id, const std::vector<char> &commands)
                 player.move(static_cast<game::move>(commands[1]));
             else if (commands[0] == server::SHOOT && !player.isCooldown())
                 shoot(player, static_cast<size_t>(commands[1]));
-            else if (commands.size() >= 4 && commands[2] == server::SHOOT && !player.isCooldown())
-                shoot(player, static_cast<size_t>(commands[3]));
         }
 }
 
@@ -104,14 +89,13 @@ void Game::shoot(Player &player, const size_t direction)
     bullets.push_back(Bullet(player.getId(), player.getPosition(), direction));
 }
 
-void Game::handleCollision(std::vector<char> &scorers)
+void Game::handleCollision()
 {
     for (auto &player : players)
         for (auto &bullet : bullets)
             if (player.getId() != bullet.getId())
                 if (isShot(player.getPosition(), bullet.getPosition()))
                 {
-                    scorers.push_back(player.getId());
                     player.score();
                     break;
                 }

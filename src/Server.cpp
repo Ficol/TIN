@@ -77,10 +77,8 @@ void Server::run()
                         game.addPlayer(client.getId());
                         std::vector<char> init_message{server::INIT};
                         std::vector<char> settings = game.getSettings();
-                        std::vector<char> points = game.getPoints();
                         game_mutex.unlock();
                         init_message.insert(init_message.end(), settings.begin(), settings.end());
-                        init_message.insert(init_message.end(), points.begin(), points.end());
                         send(client.getSocket(), &init_message[0], init_message.size(), 0);
                         break;
                     }
@@ -94,11 +92,11 @@ void Server::run()
                     {
                         std::vector<char> scorers;
                         game_mutex.lock();
-                        game.update(scorers);
+                        char winner = game.update();
                         game.changeState(client.getId(), receive_message);
                         game_mutex.unlock();
-                        if(!scorers.empty())
-                            sendTcpMessage(scorers);
+                        if(winner)
+                            sendTcpMessage(std::vector<char>{{server::TCP_GAME, winner}});
                         break;
                     }
                 clients_mutex.unlock();
@@ -151,12 +149,12 @@ void Server::sendGameState(int udp_socket)
     {
         std::vector<char> scorers;
         game_mutex.lock();
-        game.update(scorers);
+        char winner = game.update();
         game_mutex.unlock();
-        if(!scorers.empty())
+        if(winner)
         {
             clients_mutex.lock();
-            sendTcpMessage(scorers);
+            sendTcpMessage(std::vector<char>{server::TCP_GAME, winner});
             clients_mutex.unlock();
         }
         if (packet_number++ == 65535)

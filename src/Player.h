@@ -17,7 +17,7 @@ public:
     void respawn(const game::Position position_);
     void update(const double time);
     std::vector<char> getState() const;
-    size_t getPoints() const;
+    char getPoints() const;
     char getId() const;
     game::Position getPosition() const;
     void move(const game::move direction_);
@@ -29,7 +29,7 @@ private:
     char id;
     game::Position position;
     game::move direction;
-    size_t points;
+    char points;
     std::chrono::time_point<std::chrono::steady_clock> last_move_update;
     std::chrono::time_point<std::chrono::steady_clock> last_shoot;
 };

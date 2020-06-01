@@ -16,8 +16,7 @@ class Game
 public:
     Game();
     std::vector<char> getSettings() const;
-    std::vector<char> getPoints() const;
-    void update(std::vector<char> &scorers);
+    char update();
     void changeState(const char id, const std::vector<char> &commands);
     std::vector<char> getState() const;
     void addPlayer(const char id);
@@ -29,7 +28,7 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> last_update;
 
     void shoot(Player &player, const size_t direction);
-    void handleCollision(std::vector<char> &scorers);
+    void handleCollision();
     void reset();
     bool isShot(const game::Position player_position, const game::Position bullet_position) const;
 };
