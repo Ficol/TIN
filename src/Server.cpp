@@ -68,7 +68,7 @@ void Server::run()
                 throw std::runtime_error("Recvfrom call error");
             if (nbytes != 6)
                 continue;
-            std::vector<char> crc = getCrc32(receive_message, 4);
+            std::vector<char> crc = getCrc32(receive_message, nbytes - 4);
             if(!std::equal(crc.begin(), crc.end(), receive_message.end() - 4))
                 continue;
             if (receive_message[0] == server::ID)
