@@ -53,12 +53,12 @@ void Server::run()
             clients_mutex.lock();
             if (clients.size() >= server::MAX_CLIENTS_AMOUNT)
                 close(new_socket);
-            clients_mutex.unlock();
             else
             {
                 std::thread new_tcp(&Server::handleConnection, this, new_socket);
                 new_tcp.detach();
             }
+            clients_mutex.unlock();
         }
         if (FD_ISSET(udp_socket, &ready))
         {
