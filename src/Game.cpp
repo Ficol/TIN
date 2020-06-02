@@ -49,7 +49,7 @@ void Game::changeState(const char id, const std::vector<char> &commands)
             if (commands[0] == server::PLAYER_MOVE)
                 player.move(static_cast<game::move>(commands[1]));
             else if (commands[0] == server::SHOOT && !player.isCooldown())
-                shoot(player, static_cast<size_t>(commands[1]));
+                shoot(player, static_cast<size_t>(static_cast<unsigned char>(commands[1])));
         }
 }
 
