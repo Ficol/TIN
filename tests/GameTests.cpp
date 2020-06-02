@@ -4,6 +4,7 @@
 
 #include <Game.h>
 
+#include <vector>
 #include <chrono>
 #include <thread>
 
@@ -112,19 +113,3 @@ BOOST_AUTO_TEST_CASE(manyPlayersManyBullets)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-/*
-BOOST_AUTO_TEST_SUITE(changeState)
-
-BOOST_AUTO_TEST_CASE(shooting)
-{
-    Game game;
-    game.addPlayer(2);
-    std::vector<char> commands{'Z', 5};
-    game.changeState()
-    std::vector<char> expected{
-        static_cast<char>(game::GAME_SETTINGS.win_score)};
-    BOOST_CHECK_EQUAL_COLLECTIONS(settings.begin(), settings.end(),
-                                  expected.begin(), expected.end());
-}
-
-BOOST_AUTO_TEST_SUITE_END()*/

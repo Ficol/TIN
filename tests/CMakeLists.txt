@@ -5,10 +5,8 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 set(SOURCE_FILES_TEST
         test_main.cpp
         BulletTests.cpp
-        ClientTests.cpp
         GameTests.cpp
         PlayerTests.cpp
-        ServerTests.cpp
         )
 
 add_executable(${CMAKE_PROJECT_NAME}_test
