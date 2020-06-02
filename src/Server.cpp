@@ -69,7 +69,7 @@ void Server::run()
             if (nbytes != 6)
                 continue;
             std::vector<char> crc = getCrc32(receive_message, nbytes - 4);
-            if(!std::equal(crc.begin(), crc.end(), receive_message[nbytes - 4]))
+            if(!std::equal(crc.begin(), crc.end(), receive_message.begin() + nbytes - 4))
                 continue;
             if (receive_message[0] == server::ID)
             {
