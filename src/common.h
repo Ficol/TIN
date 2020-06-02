@@ -29,7 +29,7 @@ namespace game
         size_t bullet_velocity = 40000;
         size_t player_velocity = 20000;
         unsigned char win_score = 12;
-        size_t player_size = 5000;
+        size_t player_size = 3000;
         size_t bullet_size = 1000;
         double move_time = 0.2;
         double shoot_cooldown = 0.3;

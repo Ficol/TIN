@@ -50,8 +50,10 @@ void Server::run()
             int new_socket = accept(listen_socket, reinterpret_cast<sockaddr *>(&address), &address_size);
             if (new_socket < 0)
                 throw std::runtime_error("Accept call error");
+            clients_mutex.lock();
             if (clients.size() >= server::MAX_CLIENTS_AMOUNT)
                 close(new_socket);
+            clients_mutex.unlock();
             else
             {
                 std::thread new_tcp(&Server::handleConnection, this, new_socket);

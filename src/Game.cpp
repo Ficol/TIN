@@ -31,7 +31,7 @@ char Game::update()
         player.update(time);
     bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
                                  [&](Bullet &bullet) { return bullet.update(time); }),
-                  bullets.end()); //update and erase if on border
+                  bullets.end()); //update and erase if on border or hit
     handleCollision();
     for (auto &player : players)
         if (player.getPoints() >= game::GAME_SETTINGS.win_score)
@@ -41,8 +41,8 @@ char Game::update()
 
 void Game::changeState(const char id, const std::vector<char> &commands)
 {
-    //if (commands.size() != 8)
-    //   return;
+    if (commands.size() < 2)
+       return;
     for (auto &player : players)
         if (player.getId() == id)
         {
