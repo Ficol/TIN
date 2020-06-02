@@ -5,6 +5,7 @@
 
 #include "Game.h"
 #include "Client.h"
+#include "Encryptor.h"
 
 #include <vector>
 #include <thread>
@@ -20,8 +21,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-#include <boost/crc.hpp>
-
 class Server
 {
 public:
@@ -31,6 +30,7 @@ public:
 
 private:
     Game game;
+    Encryptor encryptor;
     int listen_socket;
     int udp_socket;
     std::vector<Client> clients;
@@ -41,8 +41,6 @@ private:
     void sendGameState(const int udp_socket);
     void sendTcpMessage(const std::vector<char> &message);
     void closeConnection(const int socket);
-
-    std::vector<char> getCrc32(const std::vector<char>& message, const int length) const;
 };
 
 #endif // SERVER_H
