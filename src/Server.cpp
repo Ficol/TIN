@@ -66,7 +66,10 @@ void Server::run()
             int nbytes = recvfrom(udp_socket, receive_message.data(), receive_message.size(), 0, reinterpret_cast<sockaddr *>(&address), &address_size);
             if (nbytes < 0)
                 throw std::runtime_error("Recvfrom call error");
-            if (nbytes < 2)
+            if (nbytes != 6)
+                continue;
+            std::vector<char> crc = getCrc32(receive_message, receive_message.size() - 4);
+            if(!std::equal(crc.begin(), crc.end(), receive_message.end() - 4))
                 continue;
             if (receive_message[0] == server::ID)
             {
@@ -81,6 +84,8 @@ void Server::run()
                         std::vector<char> settings = game.getSettings();
                         game_mutex.unlock();
                         init_message.insert(init_message.end(), settings.begin(), settings.end());
+                        std::vector<char> crc = getCrc32(init_message, init_message.size());
+                        init_message.insert(init_message.end(), crc.begin(), crc.end());
                         send(client.getSocket(), &init_message[0], init_message.size(), 0);
                         break;
                     }
@@ -170,6 +175,8 @@ void Server::sendGameState(int udp_socket)
         game_mutex.unlock();
         state_message.insert(state_message.end(), packet_id.begin(), packet_id.end());
         state_message.insert(state_message.end(), state.begin(), state.end());
+        std::vector<char> crc = getCrc32(state_message, state_message.size());
+        state_message.insert(state_message.end(), crc.begin(), crc.end());
         clients_mutex.lock();
         for (auto &client : clients)
             if (client.isInitialized())
@@ -196,4 +203,16 @@ void Server::closeConnection(const int socket)
                       clients.begin(), clients.end(),
                       [&](const Client &client) { return client.getSocket() == socket; }),
                   clients.end());
+}
+
+std::vector<char> Server::getCrc32(const std::vector<char>& message, const int length) const
+{
+    boost::crc_32_type result;
+    result.process_bytes(message.data(), length);
+    std::vector<char> crc ={
+        static_cast<char>((result.checksum() >> 24) & 0xff),
+        static_cast<char>((result.checksum() >> 16) & 0xff),
+        static_cast<char>((result.checksum() >> 8) & 0xff),
+        static_cast<char>(result.checksum() & 0xff)};
+    return crc;
 }

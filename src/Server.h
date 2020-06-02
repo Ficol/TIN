@@ -20,6 +20,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#include <boost/crc.hpp>
+
 class Server
 {
 public:
@@ -39,6 +41,8 @@ private:
     void sendGameState(const int udp_socket);
     void sendTcpMessage(const std::vector<char> &message);
     void closeConnection(const int socket);
+
+    std::vector<char> getCrc32(const std::vector<char>& message, const int length) const;
 };
 
 #endif // SERVER_H
