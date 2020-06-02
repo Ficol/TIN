@@ -96,7 +96,7 @@ void Server::run()
                         game.changeState(client.getId(), receive_message);
                         game_mutex.unlock();
                         if(winner)
-                            sendTcpMessage(std::vector<char>{{server::TCP_GAME, winner}});
+                            sendTcpMessage(std::vector<char>{server::TCP_GAME, winner});
                         break;
                     }
                 clients_mutex.unlock();
