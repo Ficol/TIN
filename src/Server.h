@@ -5,6 +5,7 @@
 
 #include "Game.h"
 #include "Client.h"
+#include "Encryptor.h"
 
 #include <vector>
 #include <thread>
@@ -29,6 +30,7 @@ public:
 
 private:
     Game game;
+    Encryptor encryptor;
     int listen_socket;
     int udp_socket;
     std::vector<Client> clients;

@@ -44,8 +44,6 @@ char Game::update()
 
 void Game::changeState(const char id, const std::vector<char> &commands)
 {
-    if (commands.size() < 2)
-       return;
     for (auto &player : players)
         if (player.getId() == id)
         {

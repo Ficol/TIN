@@ -5,6 +5,7 @@ set(SOURCE_FILES
         Client.cpp
 	Player.cpp
 	Bullet.cpp
+	Encryptor.cpp
 	common.h
         )
 add_library(${CMAKE_PROJECT_NAME}_lib
