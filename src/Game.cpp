@@ -96,7 +96,11 @@ void Game::handleCollision()
             if (player.getId() != bullet.getId())
                 if (isShot(player.getPosition(), bullet.getPosition()))
                 {
-                    player.score();
+                    for(auto &player : players)
+                        if(bullet.getId() == player.getId())
+                            player.score();
+                    bullet.erase();
+                    player.respawn(game::Position(rand() % game::GAME_SETTINGS.board_width, rand() % game::GAME_SETTINGS.board_height));
                     break;
                 }
 }

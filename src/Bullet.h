@@ -15,8 +15,9 @@ public:
     std::vector<char> getState() const;
     char getId() const;
     game::Position getPosition() const;
-
+    void erase();
 private:
+    bool hit;
     const static size_t POSSIBLE_DIRECTIONS_AMOUNT = 255;
     char player_id;
     game::Position position;

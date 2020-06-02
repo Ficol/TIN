@@ -1,11 +1,13 @@
 #include "Bullet.h"
 
-Bullet::Bullet(const char player_id_, const game::Position position_, const size_t direction_) : player_id(player_id_), position(position_), direction(direction_)
+Bullet::Bullet(const char player_id_, const game::Position position_, const size_t direction_) : hit(false), player_id(player_id_), position(position_), direction(direction_)
 {
 }
 
 bool Bullet::update(const double time)
 {
+    if(hit)
+        return hit;
     const double pi = std::acos(-1);
     double x = static_cast<double>(position.first) + game::GAME_SETTINGS.bullet_velocity * time * std::cos(2 * pi * direction / POSSIBLE_DIRECTIONS_AMOUNT);
     double y = static_cast<double>(position.second) + game::GAME_SETTINGS.bullet_velocity * time * std::sin(2 * pi * direction / POSSIBLE_DIRECTIONS_AMOUNT);
@@ -34,4 +36,9 @@ char Bullet::getId() const
 game::Position Bullet::getPosition() const
 {
     return position;
+}
+
+void Bullet::erase()
+{
+    hit = true;
 }
