@@ -20,6 +20,7 @@
  - Game.h – klasa obsługująca logikę gry
  - Player.h – klasa opisująca gracza w grze
  - Server.h – klasa obsługująca serwer i łączność z klientami
+ - Encryptor.h - klasa obsługująca szyfrowanie i liczenie CRC
 
 # Sposób działania:
 
