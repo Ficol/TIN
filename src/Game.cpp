@@ -35,7 +35,10 @@ char Game::update()
     handleCollision();
     for (auto &player : players)
         if (player.getPoints() >= game::GAME_SETTINGS.win_score)
+        {
+            reset();
             return player.getId();
+        }
     return 0;
 }
 
