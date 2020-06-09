@@ -110,6 +110,6 @@ bool Game::isShot(const game::Position player_position, const game::Position bul
 {
     size_t x_distance = static_cast<size_t>(std::abs(static_cast<int>(player_position.first) - static_cast<int>(bullet_position.first)));
     size_t y_distance = static_cast<size_t>(std::abs(static_cast<int>(player_position.second) - static_cast<int>(bullet_position.second)));
-    size_t collision_distance = game::GAME_SETTINGS.player_size + game::GAME_SETTINGS.bullet_size;
+    size_t collision_distance = (game::GAME_SETTINGS.player_size + game::GAME_SETTINGS.bullet_size) / 2;
     return x_distance * x_distance + y_distance * y_distance < collision_distance * collision_distance;
 }
